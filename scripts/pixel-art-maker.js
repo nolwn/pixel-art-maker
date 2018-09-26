@@ -1,16 +1,26 @@
 document.addEventListener("DOMContentLoaded", function(e){
-  const artboard = document.querySelector("#artboard");
   const width = 20;
   const height = 20;
+  const colors = {
+    "#5a5b5d" : true,
+    "#aa0000" : false,
+    "#00aa00" : false,
+    "#0000aa" : false,
+    "#aa00aa" : false,
+    "#00aaaa" : false,
+    "#aaaa00" : false
+  }
 
   letstate = {};
   let color = "black";
 
-  state = init(20, 20, "white");
-  paint(state, artboard);
+
+  state = init(20, 20, "#5a5b5d", colors);
+  paint(state);
+  renderStudio(state)
 });
 
-function init(width, height, defaultColor) {
+function init(width, height, defaultColor, colors) {
   const rows = [];
   const state = {}
   for (let i = 0; i < width; i++) {
@@ -22,6 +32,7 @@ function init(width, height, defaultColor) {
   }
   state.board = rows;
   state.brush = "#4400ff";
+  state.colors = colors;
   return state;
 }
 
@@ -38,7 +49,8 @@ function color(x, y, {board, brush}) {
   paint(state, artboard);
 }
 
-function paint({board, brush}, artboard) {
+function paint({board, brush}) {
+  let artboard = document.querySelector("#artboard");
   destroy(artboard);
   for (let i = 0; i < board.length; i++) {
     let row = document.createElement("div");
@@ -50,12 +62,43 @@ function paint({board, brush}, artboard) {
       pixel.setAttribute("x", j);
       pixel.setAttribute("y", i);
       pixel.addEventListener("click", function(e) {
-        // console.log(this.getAttribute("x"), this.getAttribute("y"));
         color(this.getAttribute("x"), this.getAttribute("y"), state);
-        // console.log(board, brush);
       });
       row.appendChild(pixel);
     }
     artboard.appendChild(row);
+  }
+}
+
+function selectColor(colorWell, state) {
+  let n = 0;
+  for (let color in state.colors) {
+    state.colors[color] = false;
+  }
+  let brush = colorWell.getAttribute("value");
+  state.brush = brush;
+  state.colors[brush] = true;
+  renderStudio(state);
+}
+
+function renderStudio({ colors }){
+  let colorPicker = document.querySelector("#color-picker");
+  destroy(colorPicker);
+  console.log(colors);
+  for (let color of Object.keys(colors)) {
+    let colorWell = document.createElement("div");
+    colorWell.classList.add("color-well");
+    console.log(color);
+    colorWell.style.background = color;
+    colorWell.setAttribute("value", color);
+
+    if(!colors[color]) {
+      colorWell.addEventListener("click", function(e) {
+        selectColor(this, state);
+      });
+    } else {
+      colorWell.classList.add("active");
+    }
+    colorPicker.appendChild(colorWell);
   }
 }
