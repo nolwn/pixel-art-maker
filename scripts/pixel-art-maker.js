@@ -33,6 +33,10 @@ function init(width, height, defaultColor, colors) {
   state.board = rows;
   state.brush = "#5a5b5d";
   state.colors = colors;
+  state.edit = false;
+  document.addEventListener("mouseup", function() {
+    state.edit = false;
+  });
   return state;
 }
 
@@ -42,14 +46,15 @@ function destroy(artboard) {
   }
 }
 
-function color(x, y, {board, brush}) {
-  console.log(x);
-  board[y][x] = brush;
-  const artboard = document.querySelector("#artboard");
-  paint(state, artboard);
+function color(x, y, {board, brush, edit}) {
+  if(edit) {
+    board[y][x] = brush;
+    const artboard = document.querySelector("#artboard");
+    paint(state, artboard);
+  }
 }
 
-function paint({board, brush}) {
+function paint({board, brush, edit}) {
   let artboard = document.querySelector("#artboard");
   destroy(artboard);
   for (let i = 0; i < board.length; i++) {
@@ -61,7 +66,11 @@ function paint({board, brush}) {
       pixel.style.background = board[i][j];
       pixel.setAttribute("x", j);
       pixel.setAttribute("y", i);
-      pixel.addEventListener("click", function(e) {
+      pixel.addEventListener("mousedown", function(e) {
+        state.edit = true;
+        color(this.getAttribute("x"), this.getAttribute("y"), state);
+      });
+      pixel.addEventListener("mouseenter", function(e) {
         color(this.getAttribute("x"), this.getAttribute("y"), state);
       });
       row.appendChild(pixel);
