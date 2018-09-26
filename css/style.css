@@ -38,7 +38,7 @@ main {
 
 .pixel {
   display: table-cell;
-  border: 1px #313335 solid;
+  border: .2px #313335 solid;
   background: pink;
 }
 

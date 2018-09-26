@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", function(e){
-  const width = 20;
-  const height = 20;
+  const width = 40;
+  const height = 40;
   const colors = {
-    "#5a5b5d" : true,
+    "#ffffff" : true,
     "#aa0000" : false,
     "#00aa00" : false,
     "#0000aa" : false,
@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function(e){
   let color = "black";
 
 
-  state = init(20, 20, "#5a5b5d", colors);
+  state = init(width, height, Object.keys(colors)[0], colors);
   paint(state);
   renderStudio(state)
 });
@@ -31,7 +31,7 @@ function init(width, height, defaultColor, colors) {
     rows.push(fields);
   }
   state.board = rows;
-  state.brush = "#4400ff";
+  state.brush = "#5a5b5d";
   state.colors = colors;
   return state;
 }
