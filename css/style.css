@@ -1,0 +1,18 @@
+#artboard {
+  background: blue;
+  display: table;
+  border: 1px black solid;
+}
+
+.row {
+  background: orange;
+  display: table-row;
+}
+
+.pixel {
+  display: table-cell;
+  border: 1px black solid;
+  background: pink;
+  height: 25px;
+  width: 25px;
+}
