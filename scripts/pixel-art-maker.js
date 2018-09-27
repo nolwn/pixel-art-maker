@@ -34,7 +34,10 @@ function init(width, height, defaultColor, colors) {
   state.brush = "#5a5b5d";
   state.colors = colors;
   state.edit = false;
-  document.addEventListener("mouseup", function() {
+  window.addEventListener("mouseup", function() {
+    state.edit = false;
+  });
+  window.addEventListener("pointerup", function() {
     state.edit = false;
   });
   return state;
@@ -70,7 +73,14 @@ function paint({board, brush, edit}) {
         state.edit = true;
         color(this.getAttribute("x"), this.getAttribute("y"), state);
       });
+      pixel.addEventListener("pointerdown", function(e) {
+        state.edit = true;
+        color(this.getAttribute("x"), this.getAttribute("y"), state);
+      });
       pixel.addEventListener("mouseenter", function(e) {
+        color(this.getAttribute("x"), this.getAttribute("y"), state);
+      });
+      pixel.addEventListener("pointerenter", function(e) {
         color(this.getAttribute("x"), this.getAttribute("y"), state);
       });
       row.appendChild(pixel);
@@ -80,7 +90,6 @@ function paint({board, brush, edit}) {
 }
 
 function selectColor(colorWell, state) {
-  let n = 0;
   for (let color in state.colors) {
     state.colors[color] = false;
   }
@@ -90,8 +99,16 @@ function selectColor(colorWell, state) {
   renderStudio(state);
 }
 
+function setColor(color, state) {
+  for (let color in state.colors) {
+    state.colors[color] = false;
+  }
+  state.brush = color;
+}
+
 function renderStudio({ colors }){
   let colorPicker = document.querySelector("#color-picker");
+  let colorSetter = document.querySelector("#color-setter");
   destroy(colorPicker);
   console.log(colors);
   for (let color of Object.keys(colors)) {
@@ -110,4 +127,9 @@ function renderStudio({ colors }){
     }
     colorPicker.appendChild(colorWell);
   }
+  colorSetter.addEventListener("change", function(e) {
+    colorRe = /^#(?:[0-9a-fA-F]{3}){1,2}$/;
+    if (colorRe.test(this.value)) setColor(this.value, state);
+  });
+
 }

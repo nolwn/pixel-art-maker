@@ -23,6 +23,10 @@ main {
   width: 200px;
 }
 
+#color-setter {
+  margin-top: 50px;
+}
+
 .studio-wrapper {
   flex-grow: 1;
   height: 520px;
