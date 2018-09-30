@@ -2,34 +2,38 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title>Pixel Art Picker</title>
+    <title>Pixel Art Maker</title>
     <link rel="stylesheet" href="css/style.css">
   </head>
   <body>
     <main>
       <div class="studio-wrapper">
         <div id="tool-picker">
+          <h3>Saved Illustrations</h3>
+          <div id="saveArea">
+            <form class="saveIll" action="index.html" method="post">
+              <label for="fileName">
+                Name your illustration:
+              </label>
+              <input type="text" name="fileName" value="untitled">
+              <input type="submit" name="save" value="Save">
+            </form>
+          </div>
+          <h3>Saved Items:</h3>
+          <select id="save-list">
+            <option value=""></option>
+          </select><br>
+          <button type="button" name="Load">Load</button>
+          <button type="button" name="Delete">Delete</button>
         </div>
       </div>
       <div id="artboard"></div>
       <div class="studio-wrapper">
         <div id="color-picker">
-          <div>
-            <div class="color-well active"></div>
-            <div class="color-well"></div>
-            <div class="color-well"></div>
-            <div class="color-well"></div>
-            <div class="color-well"></div>
-            <div class="color-well"></div>
-            <div class="color-well"></div>
-            <div class="color-well"></div>
-            <div class="color-well"></div>
-            <div class="color-well"></div>
-            <div class="color-well"></div>
-            <div class="color-well"></div>
-          </div>
+
         </div>
-          <input id="color-setter" type="color" name="" value="">
+        <label for="color-setter">Select your own color:</label>
+        <input id="color-setter" type="color" name="color-setter" value="">
       </div>
     </main>
     <script src="scripts/pixel-art-maker.js"></script>

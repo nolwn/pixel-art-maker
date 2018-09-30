@@ -1,8 +1,19 @@
+var getState;
+
+/*
+ *  This listener will wait for the DOM to be loaded and then it will start
+ *  initializing variables that will be used to generate state.
+ */
 document.addEventListener("DOMContentLoaded", function(e){
-  const width = 40;
-  const height = 40;
+  const width = 40; // number of cells wide and
+  const height = 40; // high
+  /*
+   *  the default values for the color picker. Keys represent the color values,
+   *  the boolean values indicate which color is active (true).
+   */
   const colors = {
-    "#ffffff" : true,
+    "#000000" : true,
+    "#ffffff" : false,
     "#aa0000" : false,
     "#00aa00" : false,
     "#0000aa" : false,
@@ -11,125 +22,285 @@ document.addEventListener("DOMContentLoaded", function(e){
     "#aaaa00" : false
   }
 
-  letstate = {};
-  let color = "black";
+  let color = "black"; // WHAT IS THIS?
 
-
-  state = init(width, height, Object.keys(colors)[0], colors);
+  state = init(width, height, "#ffffff", colors);
   paint(state);
-  renderStudio(state)
+  renderStudio(state);
+  renderSaveArea(state);
+
+  // listens for the mouseup event, and turns `edit` off.
+  window.addEventListener("mouseup", function() {
+    state.edit = false;
+  });
+
+  getState = function() {
+    return state;
+  }
 });
 
+/*
+ *  sets up the default state. It accepts a width, height, default color,
+ *  and an array of colors for the color picker. It returns a object.
+ */
 function init(width, height, defaultColor, colors) {
-  const rows = [];
+  const rows = []; // list of rows for the painted grid
   const state = {}
-  for (let i = 0; i < width; i++) {
+
+  /*
+   *  Loops `height` number of times, creating arrays for each row of the
+   *  painting area.
+   */
+  for (let i = 0; i < height; i++) {
     let fields = [];
-    for (let j = 0; j < height; j++) {
+
+    // pushes the default color value for each row index.
+    for (let j = 0; j < width; j++) {
       fields.push(defaultColor);
     }
     rows.push(fields);
   }
-  state.board = rows;
-  state.brush = "#5a5b5d";
+
+  state.board = rows; // completed default painting area being added to state
+  state.brush = Object.keys(colors)[0]; // state recieves a default brush color.
   state.colors = colors;
-  state.edit = false;
-  window.addEventListener("mouseup", function() {
-    state.edit = false;
-  });
-  window.addEventListener("pointerup", function() {
-    state.edit = false;
-  });
+  state.edit = false; // active if mouse is held down
+
   return state;
 }
 
+/*
+ *  takess either the painting area, or a studio area and removes all its
+ *  children. No return.
+ */
 function destroy(artboard) {
   while (artboard.children.length) {
     artboard.removeChild(artboard.children[0]);
   }
 }
 
+ /*
+  *  recieves an x and y, and state and it sets the color of a triggered
+  *  pixel to the brush color. No return.
+  */
 function color(x, y, {board, brush, edit}) {
-  if(edit) {
     board[y][x] = brush;
     const artboard = document.querySelector("#artboard");
-    paint(state, artboard);
-  }
+    paint(state, artboard); // repaint the new state
 }
 
+ /*
+  *  recieves a state and renders its artboard on the screen. No return.
+  */
 function paint({board, brush, edit}) {
   let artboard = document.querySelector("#artboard");
-  destroy(artboard);
+  destroy(artboard); // clears old artboard.
+
+  /*
+   *  loops over the board length, which represents the number of rows in the
+   *  paint area, and generates row dives to hold our pixels.
+   */
   for (let i = 0; i < board.length; i++) {
     let row = document.createElement("div");
     row.classList.add("row");
+
+    /*
+     *  for each cell in the board rows, creates and colors pixel elements and
+     *  sets them each up to be edited.
+     */
     for (let j = 0; j < board[i].length; j++) {
       let pixel = document.createElement("div");
+
       pixel.className = "pixel";
-      pixel.style.background = board[i][j];
-      pixel.setAttribute("x", j);
-      pixel.setAttribute("y", i);
+      pixel.style.background = board[i][j]; // retrieve strored color value
+      pixel.setAttribute("x", j); // for identifying a pixels grid position
+      pixel.setAttribute("y", i); //                "
+
+      /*
+       *  registers the mouse down event, makes our state editable, meaning the
+       *  mouse hovering over a pixel will paint it, and paints the pixel that
+       *  was mousedowneded on.
+       */
       pixel.addEventListener("mousedown", function(e) {
         state.edit = true;
         color(this.getAttribute("x"), this.getAttribute("y"), state);
       });
-      pixel.addEventListener("pointerdown", function(e) {
-        state.edit = true;
-        color(this.getAttribute("x"), this.getAttribute("y"), state);
-      });
+
+      /*
+       *  when the mouse enters a pixel, checks if state is editable and, if it
+       *  is, runs color() on that pixel
+       */
       pixel.addEventListener("mouseenter", function(e) {
-        color(this.getAttribute("x"), this.getAttribute("y"), state);
+        if(state.edit === true) {
+          color(this.getAttribute("x"), this.getAttribute("y"), state);
+        }
       });
-      pixel.addEventListener("pointerenter", function(e) {
-        color(this.getAttribute("x"), this.getAttribute("y"), state);
-      });
-      row.appendChild(pixel);
+
+      row.appendChild(pixel); // pixel done, adds it to row
     }
-    artboard.appendChild(row);
+
+    artboard.appendChild(row); // row done, adds it to the artbaord.
   }
 }
 
-function selectColor(colorWell, state) {
-  for (let color in state.colors) {
+/*
+ *  sets all of the color picker colors to false (inactive).
+ */
+function resetColors({ colors }) {
+  for (let color in colors) {
     state.colors[color] = false;
   }
+}
+
+ /*
+  *  takes colorWell (a node), and state and sets its color value to the state's
+  *  brush. No return.
+  */
+function selectColor(colorWell, state) {
   let brush = colorWell.getAttribute("value");
+
+  resetColors(state); // clears previously active color
+
   state.brush = brush;
   state.colors[brush] = true;
-  renderStudio(state);
+  renderStudio(state); // redraw the studio with the new active color.
 }
 
+/*
+ *  takes a color value and state and sets the brush color to equal the color
+ *  value. Differs from selectColor() because it is called to deal with a
+ *  user inputted color, rather than one picked from the color wells. No return.
+ */
 function setColor(color, state) {
-  for (let color in state.colors) {
-    state.colors[color] = false;
-  }
+  resetColors(state);
   state.brush = color;
+  renderStudio(state); // to remove active color well from UI
 }
 
+/*
+ *  takes state and uses it to draw the studio UI. No return.
+ */
 function renderStudio({ colors }){
   let colorPicker = document.querySelector("#color-picker");
   let colorSetter = document.querySelector("#color-setter");
-  destroy(colorPicker);
-  console.log(colors);
-  for (let color of Object.keys(colors)) {
-    let colorWell = document.createElement("div");
-    colorWell.classList.add("color-well");
-    console.log(color);
-    colorWell.style.background = color;
-    colorWell.setAttribute("value", color);
 
-    if(!colors[color]) {
+  destroy(colorPicker); // clear previous studio state
+
+  /*
+   *  reads the default colors from the state object and creates color wells
+   *  for the user to select from.
+   */
+  for (let color of Object.keys(colors)) {
+    let colorWell = document.createElement("div"); // each color well
+
+    colorWell.classList.add("color-well");
+    colorWell.style.background = color;
+    colorWell.setAttribute("value", color); // for capturing the value later
+
+    if(!colors[color]) { // adds a listener for non-active colors
       colorWell.addEventListener("click", function(e) {
         selectColor(this, state);
       });
-    } else {
+    } else { // marks a color as active (no listener needed)
       colorWell.classList.add("active");
     }
+
     colorPicker.appendChild(colorWell);
   }
+
+  // For user defined colors, fires on input change
   colorSetter.addEventListener("change", function(e) {
-    colorRe = /^#(?:[0-9a-fA-F]{3}){1,2}$/;
+    const colorRe = /^#(?:[0-9a-fA-F]{3}){1,2}$/; // tests for correct format
     if (colorRe.test(this.value)) setColor(this.value, state);
   });
+}
 
+/*
+ *  takes the state and draws the save area of the UI. No return.
+ */
+function renderSaveArea(state) {
+  const saveFiles = [];
+  const saveList = document.querySelector("#save-list");
+  const saveButton = document.createElement("button");
+  const deleteButton = document.createElement("button");
+  let fileName = document.querySelector("input[name=\"fileName\"]");
+
+  destroy(saveList); // clear the previous state
+
+  /*
+   *  Goes through all the items in localStorage looking entries with the
+   *  pamfile_ prefix. Pushes them into an array without the prefix.
+   */
+  for (let item in localStorage) {
+    if (hasFileTag(item)) {
+      saveFiles.push(removeFileTag(item));
+    }
+  }
+
+  // checks the saved file array we just made to see if anything was added.
+  if (saveFiles.length) {
+    for (let i = 0; i < saveFiles.length; i++) { //
+      let menuItem = document.createElement("option"); // saved file dropdown
+
+      // menuItem.classList.add("saved-item");
+
+
+      menuItem.innerHTML = saveFiles[i]; // add filenames to the menu
+      // menuItem.appendChild(saveButton);
+      // menuItem.appendChild(deleteButton);
+
+      saveList.appendChild(menuItem); // push the item into the list!
+    }
+  } else { // if there weren't saved items, create default menu.
+    let menuItem = document.createElement("option");
+    menuItem.innerHTML = "No Saved Files...";
+    saveList.appendChild(menuItem);
+    saveList.disabled = true;
+  }
+}
+
+ /*
+  *  prepends strings so that they can be identified in localStorage. Retruns a
+  *  string.
+  */
+function prependFile(file) {
+  return "pamfile_" + file;
+}
+
+/*
+ * takes a string, removes prepended file tag. Returns a string.
+ */
+function removeFileTag(file) {
+  return file.slice(8);
+}
+
+/*
+ *  takes a string, checks for prepended tag. Returns a boolean.
+ */
+function hasFileTag(file) {
+  return file.slice(0, 8) === "pamfile_";
+}
+
+/*
+ *  takes a string and state, puts a stringified copy of state's board property
+ *  into localStorage. No return.
+ */
+function saveFile(fileName, { board }) {
+  try {
+    // console.log(JSON.stringify(board));
+    localStorage.setItem(prependFile(fileName), JSON.stringify(board));
+  } catch (error) {
+    alert("Safari restricts local storage. To enable file saving on this site, \
+          check \"Disable Local File Restrictions\" in the Developer menu.");
+  }
+}
+
+/*
+ *  retrieves JSON string from local storage which represents a board state.
+ *  Loads it into the current state and paints. No return.
+ */
+function loadFile(fileName, state) {
+  const illustration = localStorage.getItem(prependFile(fileName));
+  state.board = JSON.parse(illustration);
+  paint(state);
 }
