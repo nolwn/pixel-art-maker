@@ -82,6 +82,7 @@ function init(width, height, defaultColor, colors) {
   state.brush = Object.keys(colors)[0]; // state recieves a default brush color.
   state.colors = colors;
   state.edit = false; // active if mouse is held down
+  state.flood = true; // flood fill tool
 
   return state;
 }
@@ -104,6 +105,28 @@ function color(x, y, {board, brush, edit}) {
     board[y][x] = brush;
     const artboard = document.querySelector("#artboard");
     paint(state, artboard); // repaint the new state
+}
+
+function floodFill(x, y, underColor, state) {
+  state.board[y][x] = state.brush;
+  // color(x, y, state);
+  if (underColor !== state.brush) {
+    if (state.board[y][x - 1] === underColor) {
+      floodFill(x - 1, y, underColor, state)
+    }
+
+    if (y < state.board.length - 1 && state.board[y + 1][x] === underColor) {
+      floodFill(x, y + 1, underColor, state)
+    }
+
+    if (state.board[y][x + 1] === underColor) {
+      floodFill(x + 1, y, underColor, state)
+    }
+
+    if (y > 0 && state.board[y - 1][x] === underColor) {
+      floodFill(x, y - 1, underColor, state)
+    }
+  }
 }
 
  /*
@@ -130,6 +153,7 @@ function paint({board, brush, edit}) {
 
       pixel.className = "pixel";
       pixel.style.background = board[i][j]; // retrieve strored color value
+      pixel.setAttribute("value", board[i][j]);
       pixel.setAttribute("x", j); // for identifying a pixels grid position
       pixel.setAttribute("y", i); //                "
 
@@ -139,8 +163,17 @@ function paint({board, brush, edit}) {
        *  was mousedowneded on.
        */
       pixel.addEventListener("mousedown", function(e) {
-        state.edit = true;
-        color(this.getAttribute("x"), this.getAttribute("y"), state);
+        let x = this.getAttribute("x");
+        let y = this.getAttribute("y");
+        if (!state.flood) { // behavior for brush tool
+          state.edit = true;
+          color(x, y, state);
+        } else { // behavior for flood fill tool
+          // console.log(this.getAttribute("value"));
+          floodFill(parseInt(x, 10), parseInt(y, 10), this.getAttribute("value"), state);
+          console.log("flooded!");
+          paint(state);
+        }
       });
 
       /*
