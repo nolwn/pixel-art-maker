@@ -7,6 +7,11 @@ var getState;
 document.addEventListener("DOMContentLoaded", function(e){
   const width = 40; // number of cells wide and
   const height = 40; // high
+  const saveButton = document.querySelector("button[name=\"save\"]");
+  const loadButton = document.querySelector("button[name=\"load\"]");
+  const deleteButton = document.querySelector("button[name=\"delete\"]")
+  const saveInput = document.querySelector("input[name=\"file-name\"]");
+  const loadMenu = document.querySelector("#save-list");
   /*
    *  the default values for the color picker. Keys represent the color values,
    *  the boolean values indicate which color is active (true).
@@ -28,6 +33,18 @@ document.addEventListener("DOMContentLoaded", function(e){
   paint(state);
   renderStudio(state);
   renderSaveArea(state);
+
+  saveButton.addEventListener("click", function(e) {
+    saveFile(saveInput.value, state);
+  });
+
+  loadButton.addEventListener("click", function(e) {
+    loadFile(loadMenu.options[loadMenu.selectedIndex].value, state);
+  });
+
+  deleteButton.addEventListener("click", function(e) {
+    deleteFile(loadMenu.options[loadMenu.selectedIndex].value, state);
+  });
 
   // listens for the mouseup event, and turns `edit` off.
   window.addEventListener("mouseup", function() {
@@ -239,15 +256,12 @@ function renderSaveArea(state) {
 
   // checks the saved file array we just made to see if anything was added.
   if (saveFiles.length) {
+    saveList.disabled = false;
     for (let i = 0; i < saveFiles.length; i++) { //
       let menuItem = document.createElement("option"); // saved file dropdown
 
-      // menuItem.classList.add("saved-item");
-
-
       menuItem.innerHTML = saveFiles[i]; // add filenames to the menu
-      // menuItem.appendChild(saveButton);
-      // menuItem.appendChild(deleteButton);
+      menuItem.value = saveFiles[i];
 
       saveList.appendChild(menuItem); // push the item into the list!
     }
@@ -268,7 +282,7 @@ function prependFile(file) {
 }
 
 /*
- * takes a string, removes prepended file tag. Returns a string.
+ *  takes a string, removes prepended file tag. Returns a string.
  */
 function removeFileTag(file) {
   return file.slice(8);
@@ -286,13 +300,11 @@ function hasFileTag(file) {
  *  into localStorage. No return.
  */
 function saveFile(fileName, { board }) {
-  try {
-    // console.log(JSON.stringify(board));
+    const loadMenu = document.querySelector("#save-list");
+
+    // loadMenu.disabled = false;
     localStorage.setItem(prependFile(fileName), JSON.stringify(board));
-  } catch (error) {
-    alert("Safari restricts local storage. To enable file saving on this site, \
-          check \"Disable Local File Restrictions\" in the Developer menu.");
-  }
+    renderSaveArea(state);
 }
 
 /*
@@ -301,6 +313,22 @@ function saveFile(fileName, { board }) {
  */
 function loadFile(fileName, state) {
   const illustration = localStorage.getItem(prependFile(fileName));
+  const saveInput = document.querySelector("input[name=\"file-name\"]");
+
   state.board = JSON.parse(illustration);
+  saveInput.value = fileName;
+  paint(state);
+}
+
+/*
+ *  takes a string that corresponds to a file in localStorage, deletes that
+ *  file. No return.
+ */
+function deleteFile(fileName, state) {
+  const loadMenu = document.querySelector("#save-list");
+
+  localStorage.removeItem(prependFile(fileName));
+  destroy(loadMenu);
+  renderSaveArea(state);
   paint(state);
 }

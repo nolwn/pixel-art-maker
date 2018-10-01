@@ -11,27 +11,23 @@
         <div id="tool-picker">
           <h3>Saved Illustrations</h3>
           <div id="saveArea">
-            <form class="saveIll" action="index.html" method="post">
-              <label for="fileName">
-                Name your illustration:
-              </label>
-              <input type="text" name="fileName" value="untitled">
-              <input type="submit" name="save" value="Save">
-            </form>
+            <label for="fileName">
+              Name your illustration:
+            </label>
+            <input type="text" name="file-name" value="untitled">
+            <button type="submit" name="save" value="Save">Save</button>
           </div>
           <h3>Saved Items:</h3>
           <select id="save-list">
             <option value=""></option>
           </select><br>
-          <button type="button" name="Load">Load</button>
-          <button type="button" name="Delete">Delete</button>
+          <button type="button" name="load">Load</button>
+          <button type="button" name="delete">Delete</button>
         </div>
       </div>
       <div id="artboard"></div>
       <div class="studio-wrapper">
-        <div id="color-picker">
-
-        </div>
+        <div id="color-picker"></div>
         <label for="color-setter">Select your own color:</label>
         <input id="color-setter" type="color" name="color-setter" value="">
       </div>
