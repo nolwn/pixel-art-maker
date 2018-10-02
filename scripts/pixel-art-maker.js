@@ -80,11 +80,6 @@ document.addEventListener("DOMContentLoaded", function(e){
     }
   });
 
-  // listens for the mouseup event, and turns `edit` off.
-  window.addEventListener("mouseup", function() {
-    state.edit = false;
-  });
-
   getState = function() {
     return state;
   }
@@ -210,6 +205,14 @@ function paint({board, brush, edit}) {
                     state);
           paint(state);
         }
+      });
+
+      /*
+       *  listens for the mouse up event and sets state.edit to false.
+       Why does it have to be here to work in Chrome? I had it as a window event listener in
+       */
+      pixel.addEventListener("mouseup", function(e) {
+        state.edit = false;
       });
 
       /*
