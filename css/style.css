@@ -19,18 +19,6 @@ main {
   height: 600px;8
 }
 
-/* #tool-picker {
-  width: 200px;
-}
-
-#color-picker {
-  width: 150px;
-} */
-
-#save-list {
-  overflow: scroll;
-}
-
 .saved-item {
   border: 1px #313335 solid;
   padding: 10px;
