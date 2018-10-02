@@ -9,7 +9,9 @@ document.addEventListener("DOMContentLoaded", function(e){
   const height = 40; // high
   const saveButton = document.querySelector("button[name=\"save\"]");
   const loadButton = document.querySelector("button[name=\"load\"]");
-  const deleteButton = document.querySelector("button[name=\"delete\"]")
+  const deleteButton = document.querySelector("button[name=\"delete\"]");
+  const brushButton = document.querySelector("#paint-brush");
+  const bucketButton = document.querySelector("#paint-bucket");
   const saveInput = document.querySelector("input[name=\"file-name\"]");
   const loadMenu = document.querySelector("#save-list");
   /*
@@ -27,8 +29,6 @@ document.addEventListener("DOMContentLoaded", function(e){
     "#aaaa00" : false
   }
 
-  let color = "black"; // WHAT IS THIS?
-
   state = init(width, height, "#ffffff", colors);
   paint(state);
   renderStudio(state);
@@ -44,6 +44,22 @@ document.addEventListener("DOMContentLoaded", function(e){
 
   deleteButton.addEventListener("click", function(e) {
     deleteFile(loadMenu.options[loadMenu.selectedIndex].value, state);
+  });
+
+  bucketButton.addEventListener("click", function(e) {
+    if (!state.flood) {
+      state.flood = true;
+      bucketButton.classList.add("active");
+      brushButton.classList.remove("active");
+    }
+  });
+
+  brushButton.addEventListener("click", function(e) {
+    if (state.flood) {
+      state.flood = false;
+      brushButton.classList.add("active");
+      bucketButton.classList.remove("active");
+    }
   });
 
   // listens for the mouseup event, and turns `edit` off.
@@ -82,7 +98,7 @@ function init(width, height, defaultColor, colors) {
   state.brush = Object.keys(colors)[0]; // state recieves a default brush color.
   state.colors = colors;
   state.edit = false; // active if mouse is held down
-  state.flood = true; // flood fill tool
+  state.flood = false; // flood fill tool
 
   return state;
 }
@@ -97,41 +113,42 @@ function destroy(artboard) {
   }
 }
 
- /*
-  *  recieves an x and y, and state and it sets the color of a triggered
-  *  pixel to the brush color. No return.
-  */
+/*
+ *  recieves an x and y, and state and it sets the color of a triggered
+ *  pixel to the brush color. No return.
+ */
 function color(x, y, {board, brush, edit}) {
     board[y][x] = brush;
     const artboard = document.querySelector("#artboard");
     paint(state, artboard); // repaint the new state
 }
 
+/*
+ *  recives an x coordinate (integer), a y coordinate (integer), a hex value
+ *  (string) and the state object. Recurses over pixels, stopping when it hits
+ *  pixels that don't match the passed hex color. No return.
+ */
 function floodFill(x, y, underColor, state) {
   state.board[y][x] = state.brush;
-  // color(x, y, state);
   if (underColor !== state.brush) {
     if (state.board[y][x - 1] === underColor) {
-      floodFill(x - 1, y, underColor, state)
+      floodFill(x - 1, y, underColor, state);
     }
-
     if (y < state.board.length - 1 && state.board[y + 1][x] === underColor) {
-      floodFill(x, y + 1, underColor, state)
+      floodFill(x, y + 1, underColor, state);
     }
-
     if (state.board[y][x + 1] === underColor) {
-      floodFill(x + 1, y, underColor, state)
+      floodFill(x + 1, y, underColor, state);
     }
-
     if (y > 0 && state.board[y - 1][x] === underColor) {
-      floodFill(x, y - 1, underColor, state)
+      floodFill(x, y - 1, underColor, state);
     }
   }
 }
 
- /*
-  *  recieves a state and renders its artboard on the screen. No return.
-  */
+/*
+ *  recieves a state and renders its artboard on the screen. No return.
+ */
 function paint({board, brush, edit}) {
   let artboard = document.querySelector("#artboard");
   destroy(artboard); // clears old artboard.
@@ -169,9 +186,10 @@ function paint({board, brush, edit}) {
           state.edit = true;
           color(x, y, state);
         } else { // behavior for flood fill tool
-          // console.log(this.getAttribute("value"));
-          floodFill(parseInt(x, 10), parseInt(y, 10), this.getAttribute("value"), state);
-          console.log("flooded!");
+          floodFill(parseInt(x, 10),
+                    parseInt(y, 10),
+                    this.getAttribute("value"),
+                    state);
           paint(state);
         }
       });
@@ -202,10 +220,10 @@ function resetColors({ colors }) {
   }
 }
 
- /*
-  *  takes colorWell (a node), and state and sets its color value to the state's
-  *  brush. No return.
-  */
+/*
+ *  takes colorWell (a node), and state and sets its color value to the state's
+ *  brush. No return.
+ */
 function selectColor(colorWell, state) {
   let brush = colorWell.getAttribute("value");
 
