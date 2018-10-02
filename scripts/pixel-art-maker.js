@@ -19,14 +19,32 @@ document.addEventListener("DOMContentLoaded", function(e){
    *  the boolean values indicate which color is active (true).
    */
   const colors = {
-    "#000000" : true,
-    "#ffffff" : false,
-    "#aa0000" : false,
-    "#00aa00" : false,
-    "#0000aa" : false,
-    "#aa00aa" : false,
-    "#00aaaa" : false,
-    "#aaaa00" : false
+    "#cc0000" : true,
+    "#cc3300" : false,
+    "#cc6600" : false,
+    "#cc9900" : false,
+    "#cccc00" : false,
+    "#99cc00" : false,
+    "#66cc00" : false,
+    "#33cc00" : false,
+    "#00cc00" : false,
+    "#00cc33" : false,
+    "#00cc66" : false,
+    "#00cc99" : false,
+    "#00cccc" : false,
+    "#0099cc" : false,
+    "#0066cc" : false,
+    "#0033cc" : false,
+    "#0000cc" : false,
+    "#3300cc" : false,
+    "#6600cc" : false,
+    "#9900cc" : false,
+    "#cc00cc" : false,
+    "#cc0099" : false,
+    "#cc0066" : false,
+    "#cc0033" : false,
+    "#000000" : false,
+    "#ffffff" : false
   }
 
   state = init(width, height, "#ffffff", colors);

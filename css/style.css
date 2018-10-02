@@ -5,6 +5,8 @@ body {
 }
 
 main {
+  width: 1162px;
+  margin:auto;
   display: flex;
   flex-direction: row;
 }
@@ -17,13 +19,13 @@ main {
   height: 600px;
 }
 
-#tool-picker {
+/* #tool-picker {
   width: 200px;
 }
 
 #color-picker {
-  width: 200px;
-}
+  width: 150px;
+} */
 
 #save-list {
   overflow: scroll;
@@ -35,11 +37,10 @@ main {
 }
 
 .studio-wrapper {
-  flex-grow: 1;
   height: 520px;
   background: #5a5b5d;
-  margin: 0px 40px;
   padding: 40px;
+  width: 200px;
 }
 
 .row {
